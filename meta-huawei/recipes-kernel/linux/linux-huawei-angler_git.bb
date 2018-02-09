@@ -1,0 +1,37 @@
+require recipes-kernel/linux/linux.inc
+
+SECTION = "kernel"
+
+# Mark archs/machines that this kernel supports
+COMPATIBLE_MACHINE = "angler"
+
+DESCRIPTION = "Linux kernel for the Google Nexus 6P (Huawei) device based on the offical \
+source from Google"
+
+CMDLINE = "androidboot.hardware=angler androidboot.console=ttyHSL0 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 boot_cpus=0-3 no_console_suspend"
+KERNEL_RAM_BASE = "0x00008000" 
+RAMDISK_RAM_BASE = "0x01000000"
+SECOND_RAM_BASE = "0x00f00000" 
+TAGS_RAM_BASE = "0x00000100"
+
+inherit kernel_android
+
+SRC_URI = " \
+  git://github.com/win8linux/android_kernel_huawei_angler.git;branch=halium-7.1 \
+"
+S = "${WORKDIR}/git"
+
+do_configure_prepend() {
+    cp -v -f ${S}/arch/arm64/configs/lineageos_angler_defconfig ${WORKDIR}/defconfig
+}
+
+SRCREV = "f7799af71f229e6009dff38b05870590d13a04e4"
+
+KV = "3.10.73"
+PV = "${KV}+gitr${SRCPV}"
+# for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
+
+do_install_append () {
+    rm -rf ${D}/usr/src/usr
+}
